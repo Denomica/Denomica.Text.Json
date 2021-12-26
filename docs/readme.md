@@ -4,4 +4,4 @@ The `Denomica.Text.Json` libary exposes extensions and utility functionality to 
 
 ## Table of Contents
 - [Convert to Dictionary](./dictionary)
-- [Merge JSON Documents](./merge)
+- [Merge JSON Data](./merge)
