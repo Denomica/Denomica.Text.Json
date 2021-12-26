@@ -1,6 +1,6 @@
 # Convert to Dictionary
 
-Sometimes it is more appropriate to handle data from a JSON document as a dictionary. For instance the [merging functionality](./merge.md) makes use of dictionary objects.
+Sometimes it is more appropriate to handle data from a JSON document as a dictionary. For instance the [merging functionality](./merge) makes use of dictionary objects.
 
 Converting a [`JsonDocument`](https://docs.microsoft.com/dotnet/api/system.text.json.jsondocument) or [`JsonElement`](https://docs.microsoft.com/dotnet/api/system.text.json.jsonelement) object into a dictionary is implemented in the [`ExtensionMethods`](https://github.com/Denomica/Denomica.Text.Json/blob/main/Denomica.Text.Json/ExtensionMethods.cs) class, in the `ToDictionary` methods.
 

@@ -6,7 +6,7 @@ One of the main drivers behind Denomica.Text.Json was to implement merging funct
 
 Merging two JSON documents or elements is a tree-step process.
 
-1. [Crete dictionary](./dictionary.md) objects for both your source and target.
+1. [Crete dictionary](./dictionary) objects for both your source and target.
 2. Merge the source and target dictionaries to a merged dictionary instance.
 3. Deserialize the merged dictionary into a [`JsonDocument`](https://docs.microsoft.com/dotnet/api/system.text.json.jsondocument) object.
 
