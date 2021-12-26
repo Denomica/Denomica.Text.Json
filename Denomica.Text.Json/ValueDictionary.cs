@@ -36,5 +36,29 @@ namespace Denomica.Text.Json
             }
             return null;
         }
+
+        public bool TryGetValueDictionary(string key, out ValueDictionary dictionary)
+        {
+            if(this.ContainsKey(key) && this[key] is ValueDictionary)
+            {
+                dictionary = this[key] as ValueDictionary ?? new ValueDictionary();
+                return true;
+            }
+
+            dictionary = new ValueDictionary();
+            return false;
+        }
+
+        public bool TryGetValueList(string key, out ValueList list)
+        {
+            if(this.ContainsKey(key) && this[key] is ValueList)
+            {
+                list = this[key] as ValueList ?? new ValueList();
+                return true;
+            }
+
+            list = new ValueList();
+            return false;
+        }
     }
 }

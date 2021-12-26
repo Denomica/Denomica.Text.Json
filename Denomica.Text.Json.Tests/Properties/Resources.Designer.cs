@@ -117,6 +117,36 @@ namespace Denomica.Text.Json.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to {
+        ///  &quot;menu&quot;: {
+        ///    &quot;id&quot;: &quot;file-a&quot;,
+        ///    &quot;value&quot;: &quot;File&quot;,
+        ///    &quot;popup&quot;: {
+        ///      &quot;menuitem&quot;: [
+        ///        {
+        ///          &quot;value&quot;: &quot;New&quot;,
+        ///          &quot;onclick&quot;: &quot;CreateNewDoc()&quot;
+        ///        },
+        ///        {
+        ///          &quot;value&quot;: &quot;Open&quot;,
+        ///          &quot;onclick&quot;: &quot;OpenDoc()&quot;
+        ///        },
+        ///        {
+        ///          &quot;value&quot;: &quot;Close&quot;,
+        ///          &quot;onclick&quot;: &quot;CloseDoc()&quot;
+        ///        }
+        ///      ]
+        ///    }
+        ///  }
+        ///}.
+        /// </summary>
+        internal static string json02a {
+            get {
+                return ResourceManager.GetString("json02a", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
         ///  &quot;widget&quot;: {
         ///    &quot;debug&quot;: &quot;on&quot;,
         ///    &quot;window&quot;: {

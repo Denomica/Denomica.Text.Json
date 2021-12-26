@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -59,6 +60,56 @@ namespace Denomica.Text.Json
             }
 
             return result;
+        }
+
+        public static ValueList MergeTo(this ValueList source, ValueList target)
+        {
+            foreach(var item in source)
+            {
+                if(!target.Contains(item))
+                {
+                    target.Add(item);
+                }
+            }
+
+            return target;
+        }
+
+        /// <summary>
+        /// Merges the current source dictionary to the given target dictionary.
+        /// </summary>
+        /// <remarks>
+        /// If the same key value pair exists in both <paramref name="source"/> and <paramref name="target"/>,
+        /// the value from <paramref name="source"/> will overwrite the value in <paramref name="target"/>.
+        /// </remarks>
+        /// <param name="source">The source dictionary to merge to <paramref name="target"/>.</param>
+        /// <param name="target">The target dictionary to merge to.</param>
+        /// <returns>Returns the merged dictionary.</returns>
+        /// <exception cref="ArgumentNullException">The exception that is thrown if <paramref name="source"/> or <paramref name="target"/> is <c>null</c>.</exception>
+        public static ValueDictionary MergeTo(this ValueDictionary source, ValueDictionary target)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+            if(null == target) throw new ArgumentNullException(nameof(target));
+
+            foreach(var key in source.Keys)
+            {
+                ValueDictionary? sd = null, td = null;
+                ValueList? sl = null, tl = null;
+                if (source.TryGetValueDictionary(key, out sd) && target.TryGetValueDictionary(key, out td))
+                {
+                    target[key] = sd.MergeTo(td);
+                }
+                else if (source.TryGetValueList(key, out sl) && target.TryGetValueList(key, out tl))
+                {
+                    target[key] = sl.MergeTo(tl);
+                }
+                else
+                {
+                    target[key] = source[key];
+                }
+            }
+
+            return target;
         }
 
         /// <summary>
