@@ -62,6 +62,34 @@ namespace Denomica.Text.Json
             return result;
         }
 
+        /// <summary>
+        /// Returns the value with the given key as a <see cref="ValueDictionary"/> type, if a value with
+        /// the given key exists and the given value is a <see cref="ValueDictionary"/> type.
+        /// </summary>
+        /// <param name="key">The key to return as a <see cref="ValueDictionary"/>.</param>
+        public static ValueDictionary? GetValueDictionary(this ValueDictionary current, string key)
+        {
+            if (null != current && current.ContainsKey(key) && current[key] is ValueDictionary)
+            {
+                return (ValueDictionary?)current[key];
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the value with the given key as a <see cref="ValueList"/> type, if a value with
+        /// the given key exists and the given value is a <see cref="ValueList"/> type.
+        /// </summary>
+        /// <param name="key">The key to return as a <see cref="ValueList"/>.</param>
+        public static ValueList? GetValueList(this ValueDictionary current, string key)
+        {
+            if (null != current && current.ContainsKey(key) && current[key] is ValueList)
+            {
+                return (ValueList?)current[key];
+            }
+            return null;
+        }
+
         public static ValueList MergeTo(this ValueList source, ValueList target)
         {
             foreach(var item in source)
@@ -138,6 +166,42 @@ namespace Denomica.Text.Json
             }
 
             return dictionary;
+        }
+
+        /// <summary>
+        /// Attempts to get the specified value from the current dictionary and return it as a <see cref="ValueDictionary"/> object.
+        /// </summary>
+        /// <param name="current">The current dictionary.</param>
+        /// <param name="key">The key in the current dictionary that is assumed to contain another dictionary.</param>
+        /// <param name="dictionary">The variable that will hold a reference to the found dictionary.</param>
+        public static bool TryGetValueDictionary(this ValueDictionary current, string key, out ValueDictionary dictionary)
+        {
+            if (current.ContainsKey(key) && current[key] is ValueDictionary)
+            {
+                dictionary = current[key] as ValueDictionary ?? new ValueDictionary();
+                return true;
+            }
+
+            dictionary = new ValueDictionary();
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to get the specified value from the current dictionary and return it as a <see cref="ValueList"/> object.
+        /// </summary>
+        /// <param name="current">The current dictionary.</param>
+        /// <param name="key">The key in the current dictionary that is assumed to contain a <see cref="ValueList"/> object.</param>
+        /// <param name="list">The variable that will hold a reference to the found list.</param>
+        public static bool TryGetValueList(this ValueDictionary current, string key, out ValueList list)
+        {
+            if (current.ContainsKey(key) && current[key] is ValueList)
+            {
+                list = current[key] as ValueList ?? new ValueList();
+                return true;
+            }
+
+            list = new ValueList();
+            return false;
         }
 
     }
