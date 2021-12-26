@@ -194,6 +194,19 @@ namespace Denomica.Text.Json
         }
 
         /// <summary>
+        /// Converts the current dictionary to a JSON document object.
+        /// </summary>
+        /// <remarks>
+        /// The <see cref="JsonDocument"/> object returned implements the <see cref="IDisposable"/> interface meaning that
+        /// you need to handle it accordingly.
+        /// </remarks>
+        public static JsonDocument ToJsonDocument(this ValueDictionary source)
+        {
+            var json = source.Serialize();
+            return JsonDocument.Parse(json);
+        }
+
+        /// <summary>
         /// Attempts to get the specified value from the current dictionary and return it as a <see cref="ValueDictionary"/> object.
         /// </summary>
         /// <param name="current">The current dictionary.</param>
