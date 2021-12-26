@@ -13,6 +13,23 @@ namespace Denomica.Text.Json
     {
 
         /// <summary>
+        /// Deserializes the current dictionary to an instance of the type specified in <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="source">The dictionary to deserialize.</param>
+        /// <param name="options">Optional options to control how the deserialization is done.</param>
+        /// <returns></returns>
+        public static T Deserialize<T>(this ValueDictionary source, JsonSerializerOptions? options = null)
+        {
+            var defaultOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            var json = source.Serialize();
+            return JsonSerializer.Deserialize<T>(json, options: options ?? defaultOptions) ?? throw new Exception("Cannot deserialize.");
+        }
+
+        /// <summary>
         /// Returns the value of the current JSON element.
         /// </summary>
         /// <returns>Returns an object that represents the value of the element.</returns>
@@ -138,6 +155,14 @@ namespace Denomica.Text.Json
             }
 
             return target;
+        }
+
+        /// <summary>
+        /// Serializes the current dictionary to a JSON string.
+        /// </summary>
+        public static string Serialize(this ValueDictionary source)
+        {
+            return JsonSerializer.Serialize(source);
         }
 
         /// <summary>
