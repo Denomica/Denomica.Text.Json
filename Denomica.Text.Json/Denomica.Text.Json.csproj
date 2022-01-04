@@ -3,6 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Mika Berglund</Authors>
+    <Company>Mika Berglund</Company>
+    <Description>Extensions and utility functions for System.Text.Json.</Description>
+    <PackageProjectUrl>https://denomica.github.io/Denomica.Text.Json/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Denomica/Denomica.Text.Json</RepositoryUrl>
+    <PackageTags>json;extensions</PackageTags>
+    <Version>0.9.1</Version>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

@@ -150,5 +150,20 @@ namespace Denomica.Text.Json.Tests
             Assert.IsNull(d["null"]);
         }
 
+        [TestMethod]
+        public void ToDictionary07()
+        {
+            var employee = new Employee
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                EmployeeNumber = "1234"
+            };
+
+            var d = ValueDictionary.Create(employee);
+            Assert.AreEqual(employee.FirstName, d[nameof(employee.FirstName)]);
+            Assert.AreEqual(employee.LastName, d[nameof(employee.LastName)]);
+            Assert.AreEqual(employee.EmployeeNumber, d[nameof(employee.EmployeeNumber)]);
+        }
     }
 }
