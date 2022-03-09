@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using newton = Newtonsoft.Json.Linq;
 
 
 
@@ -24,9 +25,62 @@ namespace Denomica.Text.Json
         internal static JsonSerializerOptions DefaultOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
         };
 
+
+        /// <summary>
+        /// Clonse the current dictionary into a new dictionary instance.
+        /// </summary>
+        public static JsonDictionary Clone(this JsonDictionary source)
+        {
+            var dictionary = new JsonDictionary();
+            foreach(var key in source.Keys)
+            {
+                dictionary[key] = source[key].CloneJsonValue();
+            }
+            return dictionary;
+        }
+
+        /// <summary>
+        /// Clonse the current dictionary into a new dictionary instance.
+        /// </summary>
+        public static async Task<JsonDictionary> CloneAsync(this JsonDictionary source)
+        {
+            var dictionary = new JsonDictionary();
+            foreach (var key in source.Keys)
+            {
+                dictionary[key] = await source[key].CloneJsonValueAsync();
+            }
+            return dictionary;
+        }
+
+        /// <summary>
+        /// Clones the current list into a new list instance.
+        /// </summary>
+        public static JsonList Clone(this JsonList source)
+        {
+            var list = new JsonList();
+            foreach(var item in source)
+            {
+                list.Add(item.CloneJsonValue());
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Clones the current list into a new list instance.
+        /// </summary>
+        public static async Task<JsonList> cloneAsync(this JsonList source)
+        {
+            var list = new JsonList();
+            foreach (var item in source)
+            {
+                list.Add(await item.CloneJsonValueAsync());
+            }
+            return list;
+        }
 
         /// <summary>
         /// Deserializes the current dictionary to an instance of the type specified in <typeparamref name="T"/>.
@@ -147,6 +201,60 @@ namespace Denomica.Text.Json
             return elem.GetValue();
         }
 
+        public static object? GetValue(this newton.JToken token)
+        {
+            object? result = null;
+
+            if(token is newton.JValue)
+            {
+                result = ((newton.JValue)token).Value;
+            }
+            else if(token is newton.JProperty)
+            {
+                result = ((newton.JProperty)token).Value.GetValue();
+            }
+            else if (token is newton.JObject)
+            {
+                result = token.ToJsonDictionary();
+            }
+            else if(token is newton.JArray)
+            {
+                result = token.ToJsonList();
+            }
+            //switch (valueToken?.Type)
+            //{
+            //    case newton.JTokenType.String:
+            //    case newton.JTokenType.Guid:
+            //    case newton.JTokenType.Date:
+            //    case newton.JTokenType.TimeSpan:
+            //    case newton.JTokenType.Uri:
+            //        result = valueToken.Values<string>().FirstOrDefault();
+            //        break;
+
+            //    case newton.JTokenType.Integer:
+            //        result = valueToken.Values<int>().FirstOrDefault();
+            //        break;
+
+            //    case newton.JTokenType.Float:
+            //        result = valueToken.Values<double>().FirstOrDefault();
+            //        break;
+
+            //    case newton.JTokenType.Boolean:
+            //        result = valueToken.Values<bool>().FirstOrDefault();
+            //        break;
+
+            //    case newton.JTokenType.Object:
+            //        result = valueToken.ToJsonDictionary();
+            //        break;
+
+            //    case newton.JTokenType.Array:
+            //        result = valueToken.ToJsonList();
+            //        break;
+            //}
+
+            return result;
+        }
+
         /// <summary>
         /// Returns the value with the given key as a dictionary, if a value with
         /// the given key exists and the given value is a dictionary.
@@ -230,18 +338,39 @@ namespace Denomica.Text.Json
         /// </summary>
         public static string Serialize(this JsonDictionary source, JsonSerializerOptions? options = null)
         {
-            return JsonSerializer.Serialize(source, options: options ?? DefaultOptions);
+            var clone = source.Clone();
+            return JsonSerializer.Serialize(clone, options: options ?? DefaultOptions);
         }
 
         /// <summary>
-        /// Serializes the current <see cref="ValueDictionary"/> to the given stream using the optional options.
+        /// Serializes the current dictionary to the given stream using the optional options.
         /// </summary>
         /// <param name="strm">A stream to serialize to.</param>
         /// <param name="options">Optional options to control serialization.</param>
-        /// <returns></returns>
         public static async Task SerializeAsync(this JsonDictionary source, Stream strm, JsonSerializerOptions? options = null)
         {
-            await JsonSerializer.SerializeAsync(strm, source, options: options ?? DefaultOptions);
+            var clone = await source.CloneAsync();
+            await JsonSerializer.SerializeAsync(strm, clone, options: options ?? DefaultOptions);
+        }
+
+        /// <summary>
+        /// Serializes the current dictionary to a JSON string.
+        /// </summary>
+        /// <param name="options">Optional options to control serialization.</param>
+        /// <returns>Returns a JSON string.</returns>
+        public static async Task<string> SerializeAsync(this JsonDictionary source, JsonSerializerOptions? options = null)
+        {
+            var clone = await source.CloneAsync();
+            using(var strm = new MemoryStream())
+            {
+                await JsonSerializer.SerializeAsync(strm, clone, options: options ?? DefaultOptions);
+                strm.Position = 0;
+
+                using (var reader = new StreamReader(strm))
+                {
+                    return await reader.ReadToEndAsync();
+                }
+            }
         }
 
         /// <summary>
@@ -288,10 +417,29 @@ namespace Denomica.Text.Json
         }
 
         /// <summary>
+        /// Converts the given <paramref name="token"/> to a dictionary.
+        /// </summary>
+        public static JsonDictionary ToJsonDictionary(this Newtonsoft.Json.Linq.JToken token)
+        {
+            var dictionary = new JsonDictionary();
+
+            if(token.Type == Newtonsoft.Json.Linq.JTokenType.Object)
+            {
+                foreach (var prop in from x in token.Children() where x is Newtonsoft.Json.Linq.JProperty select (Newtonsoft.Json.Linq.JProperty)x)
+                {
+                    dictionary[prop.Name] = prop.GetValue();
+                }
+            }
+
+            return dictionary;
+        }
+
+        /// <summary>
         /// Converts the given JSON document to a list.
         /// </summary>
         public static JsonList ToJsonList(this JsonDocument document)
         {
+            if (null == document) throw new ArgumentNullException(nameof(document));
             return document.RootElement.ToJsonList();
         }
 
@@ -315,15 +463,35 @@ namespace Denomica.Text.Json
             return list;
         }
 
+        /// <summary>
+        /// Converts the given <paramref name="array"/> to a list.
+        /// </summary>
         public static JsonList ToJsonList(this JsonArray array)
         {
             var list = new JsonList();
 
             foreach(var item in array)
             {
-                list.Add(item.GetValue());
+                list.Add(item?.GetValue());
             }
 
+            return list;
+        }
+
+        /// <summary>
+        /// Converts the given <paramref name="token"/> to a list.
+        /// </summary>
+        public static JsonList ToJsonList(this Newtonsoft.Json.Linq.JToken token)
+        {
+            var list = new JsonList();
+
+            if(token.Type == Newtonsoft.Json.Linq.JTokenType.Array)
+            {
+                foreach(var item in token.Children())
+                {
+                    list.Add(item.GetValue());
+                }
+            }
             return list;
         }
 
@@ -376,5 +544,27 @@ namespace Denomica.Text.Json
             return false;
         }
 
+
+
+        private static object? CloneJsonValue(this object? source)
+        {
+            if(source is newton.JToken)
+            {
+                return ((newton.JToken)source).GetValue();
+            }
+            else if(source is JsonNode)
+            {
+                return ((JsonNode)source).GetValue();
+            }
+            else
+            {
+                return source;
+            }
+        }
+
+        private static Task<object?> CloneJsonValueAsync(this object? source)
+        {
+            return Task.FromResult(source.CloneJsonValue());
+        }
     }
 }

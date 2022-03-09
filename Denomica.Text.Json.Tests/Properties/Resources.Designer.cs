@@ -233,5 +233,29 @@ namespace Denomica.Text.Json.Tests.Properties {
                 return ResourceManager.GetString("json05", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;object&quot;: {
+        ///    &quot;bool&quot;: true,
+        ///    &quot;int&quot;: 3,
+        ///    &quot;decimal&quot;: 3.141502,
+        ///    &quot;string&quot;: &quot;Hello World!&quot;,
+        ///    &quot;date&quot;: &quot;2022-03-09&quot;,
+        ///    &quot;dateTime&quot;: &quot;2022-03-09T23:59:00Z&quot;
+        ///  },
+        ///  &quot;array&quot;: [
+        ///    &quot;string&quot;,
+        ///    false,
+        ///    14,
+        ///    1.5
+        ///  ]
+        ///}.
+        /// </summary>
+        internal static string json06 {
+            get {
+                return ResourceManager.GetString("json06", resourceCulture);
+            }
+        }
     }
 }

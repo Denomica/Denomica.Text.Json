@@ -1,0 +1,16 @@
+{
+  "object": {
+    "bool": true,
+    "int": 3,
+    "decimal": 3.141592,
+    "string": "Hello World!",
+    "date": "2022-03-09",
+    "dateTime": "2022-03-09T23:59:00Z"
+  },
+  "array": [
+    "string",
+    false,
+    14,
+    1.5
+  ]
+}

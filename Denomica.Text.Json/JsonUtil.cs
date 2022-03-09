@@ -24,5 +24,6 @@ namespace Denomica.Text.Json
             var element = JsonSerializer.SerializeToElement(source, options: options);
             return element.ToJsonList();
         }
+
     }
 }

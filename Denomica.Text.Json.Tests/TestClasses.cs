@@ -9,16 +9,25 @@ namespace Denomica.Text.Json.Tests
 
     internal class Employee
     {
-        public string FirstName { get; set; } = string.Empty;
+        public string FirstName { get; set; } = null!;
 
-        public string LastName { get; set; } = string.Empty;
+        public string LastName { get; set; } = null!;
 
         public string? Email { get; set; }
 
         public string? MobilePhone { get; set; }
 
-        public string EmployeeNumber { get; set; } = string.Empty;
+        public string EmployeeNumber { get; set; } = null!;
 
     }
 
+    internal class Endpoint
+    {
+        public string Uri { get; set; } = null!;
+    }
+
+    internal class EndpointResponse
+    {
+        public Endpoint Endpoint { get; set; } = null!;
+    }
 }

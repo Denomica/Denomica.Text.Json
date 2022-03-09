@@ -1,10 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 using JSON = Denomica.Text.Json;
+using newton = Newtonsoft.Json.Linq;
 
 namespace Denomica.Text.Json.Tests
 {
@@ -14,6 +17,70 @@ namespace Denomica.Text.Json.Tests
     [TestClass]
     public class ExtensionTests
     {
+
+        [TestMethod]
+        public async Task Deserialize01()
+        {
+            var source = new Dictionary<string, object?>();
+            source["endpoint"] = Newtonsoft.Json.Linq.JObject.Parse("{ \"uri\": \"https://localhost/api/foo\" }");
+
+            object? target = null;
+
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true };
+            using (var strm = new MemoryStream())
+            {
+                await JsonSerializer.SerializeAsync(strm, source, options: options);
+                strm.Position = 0;
+
+                target = await JsonSerializer.DeserializeAsync(strm, typeof(Dictionary<string, object?>), options: options);
+            }
+
+            Assert.IsNotNull(target);
+        }
+
+        [TestMethod]
+        public async Task Deserialize02()
+        {
+            var uri = "https://localhost";
+            var source = new JsonDictionary
+            {
+                ["endpoint"] = Newtonsoft.Json.Linq.JObject.Parse($"{{ \"uri\": \"{uri}\" }}")
+            };
+
+            var target = await source.DeserializeAsync<EndpointResponse>();
+        }
+
+        [TestMethod]
+        public async Task Deserialize03()
+        {
+            var uri = "https://localhost";
+            var source = new JsonDictionary
+            {
+                ["endpoint"] = Newtonsoft.Json.Linq.JObject.Parse($"{{ \"uri\": \"{uri}\" }}")
+            };
+
+            // No exception must be thrown when deserializing.
+            var target = await source.DeserializeAsync(typeof(EndpointResponse));
+        }
+
+
+
+        [TestMethod]
+        public async Task Serialize01()
+        {
+            var source = new Dictionary<string, object?>();
+            source["sub"] = newton.JObject.Parse("{ \"foo\": \"bar\" }");
+            var json = await source.SerializeAsync();
+
+            var jDoc = JsonDocument.Parse(json);
+            var target = jDoc.ToJsonDictionary();
+            
+            Assert.IsNotNull(target);
+            JsonDictionary sub = (JsonDictionary)(target["sub"] ?? throw new NullReferenceException());
+            Assert.AreEqual("bar", sub["foo"]);
+        }
+
+
 
         [TestMethod]
         public void MergeList01()
@@ -186,6 +253,60 @@ namespace Denomica.Text.Json.Tests
             Assert.AreEqual(employee.FirstName, d[nameof(Employee.FirstName)]);
             Assert.AreEqual(employee.LastName, d[nameof(Employee.LastName)]);
         }
+
+        [TestMethod]
+        public void ToDictionary09()
+        {
+            var d = newton.JToken.Parse("{ \"foo\": \"bar\" }").ToJsonDictionary();
+            Assert.IsNotNull(d);
+            Assert.IsTrue(d.ContainsKey("foo"));
+            Assert.AreEqual("bar", d["foo"]);
+        }
+
+        [TestMethod]
+        public void ToDictionary10()
+        {
+            var d = newton.JObject.Parse(Properties.Resources.json01).ToJsonDictionary();
+            Assert.IsNotNull(d);
+            Assert.AreNotEqual(0, d.Count);
+            Assert.IsNotNull(d["glossary"]);
+        }
+
+        [TestMethod]
+        public void ToDictionary11()
+        {
+            var d = newton.JToken.Parse("{\"arr\": [\"item1\", \"item2\"]}").ToJsonDictionary();
+            Assert.IsNotNull(d?["arr"]);
+            var list = d["arr"] as JsonList;
+            Assert.IsNotNull(list);
+            Assert.AreEqual(2, list.Count);
+            CollectionAssert.Contains(list, "item1");
+            CollectionAssert.Contains(list, "item2");
+        }
+
+        [TestMethod]
+        public void ToDictionary12()
+        {
+            var d = newton.JObject.Parse(Properties.Resources.json06).ToJsonDictionary();
+            Assert.IsNotNull(d);
+
+            var obj = d["object"] as JsonDictionary;
+            Assert.IsNotNull(obj);
+            Assert.AreEqual(true, obj["bool"]);
+            Assert.AreEqual(3L, obj["int"]);
+            Assert.AreEqual(3.141592, obj["decimal"]);
+            Assert.AreEqual("Hello World!", obj["string"]);
+            Assert.AreEqual("2022-03-09", obj["date"]);
+            Assert.AreEqual(DateTime.Parse("2022-03-09T23:59:00Z").ToUniversalTime(), obj["dateTime"]);
+
+            var arr = d["array"] as JsonList;
+            Assert.IsNotNull(arr);
+            CollectionAssert.Contains(arr, "string");
+            CollectionAssert.Contains(arr, false);
+            CollectionAssert.Contains(arr, 14L);
+            CollectionAssert.Contains(arr, 1.5);
+        }
+
 
 
         [TestMethod]
