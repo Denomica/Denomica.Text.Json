@@ -7,16 +7,25 @@
     <Authors>Mika Berglund</Authors>
     <Company>Mika Berglund</Company>
     <Description>Extensions and utility functions for System.Text.Json.</Description>
-    <PackageProjectUrl>https://denomica.github.io/Denomica.Text.Json/</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Denomica/Denomica.Text.Json</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Denomica/Denomica.Text.Json</RepositoryUrl>
     <PackageTags>json;extensions</PackageTags>
-    <Version>0.9.2</Version>
+    <Version>1.0.0-beta1</Version>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <Copyright>Copyright (c) 2022 Denomica Oy</Copyright>
+	  <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Text.Json" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
