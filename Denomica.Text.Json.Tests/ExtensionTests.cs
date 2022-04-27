@@ -17,6 +17,13 @@ namespace Denomica.Text.Json.Tests
     [TestClass]
     public class ExtensionTests
     {
+        static ExtensionTests()
+        {
+            SerializationOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            JsonUtil.AddSerializationConverters(SerializationOptions);
+        }
+
+        private static JsonSerializerOptions SerializationOptions;
 
         [TestMethod]
         public async Task Deserialize01()
@@ -26,13 +33,12 @@ namespace Denomica.Text.Json.Tests
 
             object? target = null;
 
-            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true };
             using (var strm = new MemoryStream())
             {
-                await JsonSerializer.SerializeAsync(strm, source, options: options);
+                await JsonSerializer.SerializeAsync(strm, source, options: SerializationOptions);
                 strm.Position = 0;
 
-                target = await JsonSerializer.DeserializeAsync(strm, typeof(Dictionary<string, object?>), options: options);
+                target = await JsonSerializer.DeserializeAsync(strm, typeof(Dictionary<string, object?>), options: SerializationOptions);
             }
 
             Assert.IsNotNull(target);
@@ -47,7 +53,7 @@ namespace Denomica.Text.Json.Tests
                 ["endpoint"] = Newtonsoft.Json.Linq.JObject.Parse($"{{ \"uri\": \"{uri}\" }}")
             };
 
-            var target = await source.DeserializeAsync<EndpointResponse>();
+            var target = await source.DeserializeAsync<EndpointResponse>(options: SerializationOptions);
         }
 
         [TestMethod]
@@ -56,11 +62,66 @@ namespace Denomica.Text.Json.Tests
             var uri = "https://localhost";
             var source = new JsonDictionary
             {
-                ["endpoint"] = Newtonsoft.Json.Linq.JObject.Parse($"{{ \"uri\": \"{uri}\" }}")
+                ["endpoint"] = newton.JObject.Parse($"{{ \"uri\": \"{uri}\" }}")
             };
 
             // No exception must be thrown when deserializing.
-            var target = await source.DeserializeAsync(typeof(EndpointResponse));
+            var target = await source.DeserializeAsync(typeof(EndpointResponse), options: SerializationOptions);
+            Assert.IsNotNull(target);
+            Assert.IsTrue(target is EndpointResponse);
+        }
+
+        [TestMethod]
+        public void Deserialize04()
+        {
+            var source = new JsonDictionary
+            {
+                {
+                    "records",
+                    new JsonList
+                    {
+                        newton.JToken.Parse("{ \"id\": \"26556e41-4177-4491-9a73-02b0af1b6313\"}"),
+                        JsonNode.Parse("{ \"index\": 5, \"text\": \"some text\"}")
+                    }
+                }
+            };
+
+            var set = source.Deserialize<RecordSet>(options: SerializationOptions);
+            Assert.IsNotNull(set);
+            Assert.AreEqual(2, set.Records.Count);
+            CollectionAssert.AllItemsAreInstancesOfType(set.Records, typeof(JsonDictionary));
+            var dictionaries = from x in set.Records select (JsonDictionary)x;
+            Assert.IsTrue(dictionaries.All(x => x.Count > 0));
+        }
+
+        [TestMethod]
+        public void Deserialize05()
+        {
+            var jsonArr = JsonNode.Parse("[{ \"foo\": \"bar\", \"list\": [ \"Hello\", \"World!\" ] }, { \"child\": { \"grandChild\": { \"name\": \"Charles\", \"age\": 10 } }  }]");
+            var list = JsonSerializer.Deserialize<JsonList>(jsonArr, options: SerializationOptions);
+
+            Assert.IsNotNull(list);
+            Assert.AreEqual(2, list.Count);
+            CollectionAssert.AllItemsAreInstancesOfType(list, typeof(JsonDictionary));
+
+            var item1 = list[0] as JsonDictionary;
+            var item2 = list[1] as JsonDictionary;
+            Assert.IsNotNull(item1);
+            Assert.IsNotNull(item2);
+
+            Assert.AreEqual("bar", item1["foo"]);
+            var subList = item1["list"] as JsonList;
+            Assert.IsNotNull(subList);
+            CollectionAssert.Contains(subList, "Hello");
+            CollectionAssert.Contains(subList, "World!");
+
+            var child = item2["child"] as JsonDictionary;
+            Assert.IsNotNull(child);
+
+            var grandChild = child["grandChild"] as JsonDictionary;
+            Assert.IsNotNull(grandChild);
+            Assert.AreEqual("Charles", grandChild["name"]);
+            Assert.AreEqual(10, grandChild["age"]);
         }
 
 
@@ -305,6 +366,51 @@ namespace Denomica.Text.Json.Tests
             CollectionAssert.Contains(arr, false);
             CollectionAssert.Contains(arr, 14L);
             CollectionAssert.Contains(arr, 1.5);
+        }
+
+        [TestMethod]
+        public void ToDictionary13()
+        {
+            var response = new EndpointResponse
+            {
+                Endpoint = new Endpoint { Uri = "http://localhost" }
+            };
+
+            var json = JsonSerializer.Serialize(response, options: SerializationOptions);
+            var dictionary = JsonUtil.CreateDictionary(json, options: SerializationOptions);
+            Assert.IsNotNull(dictionary);
+            JsonDictionary? endpoint = dictionary["endpoint"] as JsonDictionary;
+            Assert.IsNotNull(endpoint);
+            Assert.AreEqual(response.Endpoint.Uri, endpoint["uri"]);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(JsonException), AllowDerivedTypes = true)]
+        public void ToDictionary14()
+        {
+            var dictionary = JsonUtil.CreateDictionary("foo");
+        }
+
+        [TestMethod]
+        public void ToDictionary15()
+        {
+            var response = new EndpointResponse
+            {
+                Meta = new JsonDictionary
+                {
+                    { "isCool", true },
+                    { "maxCount", 1024 },
+                    { "etag", "1008087245692" }
+                }
+            };
+
+            var dictionary = JsonUtil.CreateDictionary(response);
+            var result = dictionary.Deserialize<EndpointResponse>();
+
+            foreach(var key in response.Meta.Keys)
+            {
+                Assert.AreEqual(response.Meta[key], result.Meta[key], $"Comparing values with key '{key}'.");
+            }
         }
 
 

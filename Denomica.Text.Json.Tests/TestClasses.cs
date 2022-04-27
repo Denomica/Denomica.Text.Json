@@ -29,5 +29,12 @@ namespace Denomica.Text.Json.Tests
     internal class EndpointResponse
     {
         public Endpoint Endpoint { get; set; } = null!;
+
+        public Dictionary<string, object?> Meta { get; set; } = new Dictionary<string, object?>();
+    }
+
+    internal class RecordSet
+    {
+        public List<object> Records { get; set; } = new List<object>();
     }
 }

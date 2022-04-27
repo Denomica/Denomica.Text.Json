@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using newton = Newtonsoft.Json.Linq;
 
@@ -21,14 +22,6 @@ namespace Denomica.Text.Json
     /// </summary>
     public static class ExtensionMethods
     {
-
-        internal static JsonSerializerOptions DefaultOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
-        };
-
 
         /// <summary>
         /// Clonse the current dictionary into a new dictionary instance.
@@ -90,8 +83,10 @@ namespace Denomica.Text.Json
         /// <returns></returns>
         public static T Deserialize<T>(this JsonDictionary source, JsonSerializerOptions? options = null)
         {
-            var json = source.Serialize(options: options);
-            return JsonSerializer.Deserialize<T>(json, options: options ?? DefaultOptions) ?? throw new Exception("Cannot deserialize.");
+            var result = source.Deserialize(typeof(T), options: options ?? JsonUtil.DefaultSerializationOptions);
+            return null != result
+                ? (T)result
+                : throw new Exception("Cannot deserialize");
         }
         
         /// <summary>
@@ -102,7 +97,8 @@ namespace Denomica.Text.Json
         public static object? Deserialize(this JsonDictionary source, Type targetType, JsonSerializerOptions? options = null)
         {
             var json = source.Serialize(options: options);
-            return JsonSerializer.Deserialize(json, targetType, options ?? DefaultOptions);
+            var result = JsonSerializer.Deserialize(json, targetType, options ?? JsonUtil.DefaultSerializationOptions);
+            return result;
         }
 
         /// <summary>
@@ -112,13 +108,10 @@ namespace Denomica.Text.Json
         /// <param name="options">Optional options to control how the deserialization is done.</param>
         public static async Task<T> DeserializeAsync<T>(this JsonDictionary source, JsonSerializerOptions? options = null)
         {
-            using (var strm = new MemoryStream())
-            {
-                await source.SerializeAsync(strm, options: options);
-                strm.Position = 0;
-
-                return await JsonSerializer.DeserializeAsync<T>(strm, options: options ?? DefaultOptions) ?? throw new Exception("Cannot deserialize");
-            }
+            var result = await source.DeserializeAsync(typeof(T), options: options ?? JsonUtil.DefaultSerializationOptions);
+            return null != result
+                ? (T)result
+                : throw new Exception("Cannot deserialize");
         }
 
         /// <summary>
@@ -130,10 +123,10 @@ namespace Denomica.Text.Json
         {
             using(var strm = new MemoryStream())
             {
-                await source.SerializeAsync(strm, options: options ?? DefaultOptions);
+                await source.SerializeAsync(strm, options: options ?? JsonUtil.DefaultSerializationOptions);
                 strm.Position = 0;
 
-                return await JsonSerializer.DeserializeAsync(strm, targetType, options: options ?? DefaultOptions);
+                return await JsonSerializer.DeserializeAsync(strm, targetType, options: options ?? JsonUtil.DefaultSerializationOptions);
             }
         }
 
@@ -221,36 +214,6 @@ namespace Denomica.Text.Json
             {
                 result = token.ToJsonList();
             }
-            //switch (valueToken?.Type)
-            //{
-            //    case newton.JTokenType.String:
-            //    case newton.JTokenType.Guid:
-            //    case newton.JTokenType.Date:
-            //    case newton.JTokenType.TimeSpan:
-            //    case newton.JTokenType.Uri:
-            //        result = valueToken.Values<string>().FirstOrDefault();
-            //        break;
-
-            //    case newton.JTokenType.Integer:
-            //        result = valueToken.Values<int>().FirstOrDefault();
-            //        break;
-
-            //    case newton.JTokenType.Float:
-            //        result = valueToken.Values<double>().FirstOrDefault();
-            //        break;
-
-            //    case newton.JTokenType.Boolean:
-            //        result = valueToken.Values<bool>().FirstOrDefault();
-            //        break;
-
-            //    case newton.JTokenType.Object:
-            //        result = valueToken.ToJsonDictionary();
-            //        break;
-
-            //    case newton.JTokenType.Array:
-            //        result = valueToken.ToJsonList();
-            //        break;
-            //}
 
             return result;
         }
@@ -339,7 +302,7 @@ namespace Denomica.Text.Json
         public static string Serialize(this JsonDictionary source, JsonSerializerOptions? options = null)
         {
             var clone = source.Clone();
-            return JsonSerializer.Serialize(clone, options: options ?? DefaultOptions);
+            return JsonSerializer.Serialize(clone, options: options ?? JsonUtil.DefaultSerializationOptions);
         }
 
         /// <summary>
@@ -350,7 +313,7 @@ namespace Denomica.Text.Json
         public static async Task SerializeAsync(this JsonDictionary source, Stream strm, JsonSerializerOptions? options = null)
         {
             var clone = await source.CloneAsync();
-            await JsonSerializer.SerializeAsync(strm, clone, options: options ?? DefaultOptions);
+            await JsonSerializer.SerializeAsync(strm, clone, options: options ?? JsonUtil.DefaultSerializationOptions);
         }
 
         /// <summary>
@@ -363,7 +326,7 @@ namespace Denomica.Text.Json
             var clone = await source.CloneAsync();
             using(var strm = new MemoryStream())
             {
-                await JsonSerializer.SerializeAsync(strm, clone, options: options ?? DefaultOptions);
+                await JsonSerializer.SerializeAsync(strm, clone, options: options ?? JsonUtil.DefaultSerializationOptions);
                 strm.Position = 0;
 
                 using (var reader = new StreamReader(strm))
@@ -397,6 +360,18 @@ namespace Denomica.Text.Json
                     dictionary[p.Name] = p.Value.GetValue();
                 }
             }
+            else if(element.ValueKind == JsonValueKind.String)
+            {
+                var json = element.GetString();
+                if(null != json)
+                {
+                    var node = JsonNode.Parse(json);
+                    if(null != node)
+                    {
+                        dictionary = JsonUtil.CreateDictionary(node);
+                    }
+                }
+            }
 
             return dictionary;
         }
@@ -419,13 +394,13 @@ namespace Denomica.Text.Json
         /// <summary>
         /// Converts the given <paramref name="token"/> to a dictionary.
         /// </summary>
-        public static JsonDictionary ToJsonDictionary(this Newtonsoft.Json.Linq.JToken token)
+        public static JsonDictionary ToJsonDictionary(this newton.JToken token)
         {
             var dictionary = new JsonDictionary();
 
-            if(token.Type == Newtonsoft.Json.Linq.JTokenType.Object)
+            if(token.Type == newton.JTokenType.Object)
             {
-                foreach (var prop in from x in token.Children() where x is Newtonsoft.Json.Linq.JProperty select (Newtonsoft.Json.Linq.JProperty)x)
+                foreach (var prop in from x in token.Children() where x is newton.JProperty select (newton.JProperty)x)
                 {
                     dictionary[prop.Name] = prop.GetValue();
                 }
@@ -481,11 +456,11 @@ namespace Denomica.Text.Json
         /// <summary>
         /// Converts the given <paramref name="token"/> to a list.
         /// </summary>
-        public static JsonList ToJsonList(this Newtonsoft.Json.Linq.JToken token)
+        public static JsonList ToJsonList(this newton.JToken token)
         {
             var list = new JsonList();
 
-            if(token.Type == Newtonsoft.Json.Linq.JTokenType.Array)
+            if(token.Type == newton.JTokenType.Array)
             {
                 foreach(var item in token.Children())
                 {

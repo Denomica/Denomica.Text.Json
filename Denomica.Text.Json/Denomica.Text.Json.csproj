@@ -9,8 +9,8 @@
     <Description>Extensions and utility functions for System.Text.Json.</Description>
     <PackageProjectUrl>https://github.com/Denomica/Denomica.Text.Json</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Denomica/Denomica.Text.Json</RepositoryUrl>
-    <PackageTags>json;extensions</PackageTags>
-    <Version>1.0.0</Version>
+    <PackageTags>json;extensions;system.text.json</PackageTags>
+    <Version>1.0.1-rc.1</Version>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	  <Copyright>Copyright (c) 2022 Denomica Oy</Copyright>
 	  <PackageReadmeFile>readme.md</PackageReadmeFile>
