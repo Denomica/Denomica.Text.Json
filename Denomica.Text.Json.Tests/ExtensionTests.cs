@@ -293,7 +293,7 @@ namespace Denomica.Text.Json.Tests
                 EmployeeNumber = "1234"
             };
 
-            var d = JsonUtil.CreateDictionary(employee);
+            var d = JsonUtil.CreateDictionary(employee, options: new JsonSerializerOptions());
             Assert.AreEqual(employee.FirstName, d[nameof(employee.FirstName)]);
             Assert.AreEqual(employee.LastName, d[nameof(employee.LastName)]);
             Assert.AreEqual(employee.EmployeeNumber, d[nameof(employee.EmployeeNumber)]);
@@ -413,6 +413,15 @@ namespace Denomica.Text.Json.Tests
             }
         }
 
+        [TestMethod]
+        [Description("Assert that by default, objects are serialized using camelCase.")]
+        public void ToDictionary16()
+        {
+            var emp = new Employee { EmployeeNumber = "1234" };
+            var dictionary = JsonUtil.CreateDictionary(emp);
+            var num = dictionary["employeeNumber"];
+            Assert.AreEqual(emp.EmployeeNumber, num);
+        }
 
 
         [TestMethod]
@@ -424,7 +433,7 @@ namespace Denomica.Text.Json.Tests
                 new Employee { FirstName = "Jane", LastName= "Doe" }
             };
 
-            var list = JsonUtil.CreateList(source);
+            var list = JsonUtil.CreateList(source, options: new JsonSerializerOptions());
             Assert.AreEqual(2, list.Count);
 
             for(var i = 0; i < source.Count; i++)
@@ -456,6 +465,19 @@ namespace Denomica.Text.Json.Tests
                 Assert.AreEqual(source[i].FirstName, item[nameof(Employee.FirstName)]);
                 Assert.AreEqual(source[i].LastName, item[nameof(Employee.LastName)]);
             }
+        }
+
+        [TestMethod]
+        [Description("Assert that by default, lists are serialized using camelCase.")]
+        public void ToList03()
+        {
+            var source = new List<Employee> { new Employee { EmployeeNumber = "007" } };
+            var list = JsonUtil.CreateList(source);
+            var emp = list.First() as JsonDictionary;
+            
+            Assert.IsNotNull(emp);
+            var num = emp["employeeNumber"];
+            Assert.AreEqual(source.First().EmployeeNumber, num);
         }
     }
 }

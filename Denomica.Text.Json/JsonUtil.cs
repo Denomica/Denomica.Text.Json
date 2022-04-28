@@ -37,7 +37,7 @@ namespace Denomica.Text.Json
         /// <param name="options">Optional options to use when serializing. If not specified <see cref="DefaultSerializationOptions"/> are used.</param>
         public static JsonDictionary CreateDictionary(object source, JsonSerializerOptions? options = null)
         {
-            var element = JsonSerializer.SerializeToElement(source, options: options);
+            var element = JsonSerializer.SerializeToElement(source, options: options ?? DefaultSerializationOptions);
             return element.ToJsonDictionary();
         }
 
@@ -48,7 +48,7 @@ namespace Denomica.Text.Json
         /// <param name="options">Optional options to use when serializing. If not specified <see cref="DefaultSerializationOptions"/> are used.</param>
         public static JsonList CreateList(IEnumerable source, JsonSerializerOptions? options = null)
         {
-            var element = JsonSerializer.SerializeToElement(source, options: options);
+            var element = JsonSerializer.SerializeToElement(source, options: options ?? DefaultSerializationOptions);
             return element.ToJsonList();
         }
 
