@@ -18,3 +18,7 @@ The main improvements in the different versions are listed below.
 ### v1.0.1
 
 - Fixed a serialization / deserialization issue that caused nested objects to be deserialized into a [`JsonElement`](https://docs.microsoft.com/dotnet/api/system.text.json.jsonelement) object instead of a dictionary.
+
+### v1.0.2
+
+- Fixed a serialization problem in cased when using the [`JsonUtil.CreateDictionary`](https://github.com/Denomica/Denomica.Text.Json/blob/main/Denomica.Text.Json/JsonUtil.cs) and [`JsonUtil.CreateList`](https://github.com/Denomica/Denomica.Text.Json/blob/main/Denomica.Text.Json/JsonUtil.cs) methods without specifying serialization options explicitly. The default in these cases should be to use the internally defined default serialization options which is now fixed in this version.
