@@ -127,6 +127,15 @@ namespace Denomica.Text.Json.Tests
 
 
         [TestMethod]
+        public void GetValue01()
+        {
+            JsonElement? elem = null;
+            var val = elem.GetValue();
+            Assert.IsNull(val);
+        }
+
+
+        [TestMethod]
         public async Task Serialize01()
         {
             var source = new Dictionary<string, object?>();
@@ -421,6 +430,14 @@ namespace Denomica.Text.Json.Tests
             var dictionary = JsonUtil.CreateDictionary(emp);
             var num = dictionary["employeeNumber"];
             Assert.AreEqual(emp.EmployeeNumber, num);
+        }
+
+        [TestMethod]
+        public void ToDictionary17()
+        {
+            JsonElement? elem = null;
+            var dict = elem.ToJsonDictionary();
+            Assert.IsNull(dict);
         }
 
 

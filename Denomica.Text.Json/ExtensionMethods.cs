@@ -188,6 +188,18 @@ namespace Denomica.Text.Json
             return result;
         }
 
+        /// <summary>
+        /// Returns the value of the current JSON element, if it is not <c>null</c>.
+        /// </summary>
+        public static object? GetValue(this JsonElement? element)
+        {
+            if(element.HasValue)
+            {
+                return element.Value.GetValue();
+            }
+            return null;
+        }
+
         public static object? GetValue(this JsonNode node)
         {
             var elem = JsonSerializer.SerializeToElement(node);
@@ -374,6 +386,21 @@ namespace Denomica.Text.Json
             }
 
             return dictionary;
+        }
+
+        /// <summary>
+        /// Converts the given JSON element to a dictionary.
+        /// </summary>
+        /// <param name="element">The element to convert.</param>
+        /// <returns>Returns the dictionary or <c>null</c> if <paramref name="element"/> is <c>null</c>.</returns>
+        public static JsonDictionary? ToJsonDictionary(this JsonElement? element)
+        {
+            if(element.HasValue)
+            {
+                return element.Value.ToJsonDictionary();
+            }
+
+            return null;
         }
 
         /// <summary>

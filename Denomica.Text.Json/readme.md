@@ -15,10 +15,16 @@ The library exposes functionality for:
 
 The main improvements in the different versions are listed below.
 
-### v1.0.1
+### v1.0.3
 
-- Fixed a serialization / deserialization issue that caused nested objects to be deserialized into a [`JsonElement`](https://docs.microsoft.com/dotnet/api/system.text.json.jsonelement) object instead of a dictionary.
+- Added extension methods for hanlding nullable versions of [JsonElement](https://learn.microsoft.com/dotnet/api/system.text.json.jsonelement) structures.
+- Updated [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/) package to a non-vulnerable version.
+- Updated [System.Text.Json](https://www.nuget.org/packages/System.Text.Json/) package.
 
 ### v1.0.2
 
 - Fixed a serialization problem in cased when using the [`JsonUtil.CreateDictionary`](https://github.com/Denomica/Denomica.Text.Json/blob/main/Denomica.Text.Json/JsonUtil.cs) and [`JsonUtil.CreateList`](https://github.com/Denomica/Denomica.Text.Json/blob/main/Denomica.Text.Json/JsonUtil.cs) methods without specifying serialization options explicitly. The default in these cases should be to use the internally defined default serialization options which is now fixed in this version.
+
+### v1.0.1
+
+- Fixed a serialization / deserialization issue that caused nested objects to be deserialized into a [`JsonElement`](https://docs.microsoft.com/dotnet/api/system.text.json.jsonelement) object instead of a dictionary.
