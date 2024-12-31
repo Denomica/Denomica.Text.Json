@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using JSON = Denomica.Text.Json;
-using newton = Newtonsoft.Json.Linq;
+using Newton = Newtonsoft.Json.Linq;
 
 namespace Denomica.Text.Json.Tests
 {
@@ -28,8 +28,10 @@ namespace Denomica.Text.Json.Tests
         [TestMethod]
         public async Task Deserialize01()
         {
-            var source = new Dictionary<string, object?>();
-            source["endpoint"] = Newtonsoft.Json.Linq.JObject.Parse("{ \"uri\": \"https://localhost/api/foo\" }");
+            var source = new Dictionary<string, object?>
+            {
+                ["endpoint"] = Newton.JObject.Parse("{ \"uri\": \"https://localhost/api/foo\" }")
+            };
 
             object? target = null;
 
@@ -62,7 +64,7 @@ namespace Denomica.Text.Json.Tests
             var uri = "https://localhost";
             var source = new JsonDictionary
             {
-                ["endpoint"] = newton.JObject.Parse($"{{ \"uri\": \"{uri}\" }}")
+                ["endpoint"] = Newton.JObject.Parse($"{{ \"uri\": \"{uri}\" }}")
             };
 
             // No exception must be thrown when deserializing.
@@ -80,7 +82,7 @@ namespace Denomica.Text.Json.Tests
                     "records",
                     new JsonList
                     {
-                        newton.JToken.Parse("{ \"id\": \"26556e41-4177-4491-9a73-02b0af1b6313\"}"),
+                        Newton.JToken.Parse("{ \"id\": \"26556e41-4177-4491-9a73-02b0af1b6313\"}"),
                         JsonNode.Parse("{ \"index\": 5, \"text\": \"some text\"}")
                     }
                 }
@@ -124,6 +126,27 @@ namespace Denomica.Text.Json.Tests
             Assert.AreEqual(10, grandChild["age"]);
         }
 
+        [TestMethod]
+        public async Task Deserialize06()
+        {
+            var source = new JsonDictionary
+            {
+                ["endpoint"] = new JsonDictionary { ["url"] = "https://localhost/api/foo" }
+            };
+
+            object? target = null;
+
+            using (var strm = new MemoryStream())
+            {
+                await JsonSerializer.SerializeAsync(strm, source, options: SerializationOptions);
+                strm.Position = 0;
+
+                target = await JsonSerializer.DeserializeAsync(strm, typeof(JsonDictionary), options: SerializationOptions);
+            }
+
+            Assert.IsNotNull(target);
+        }
+
 
 
         [TestMethod]
@@ -139,7 +162,7 @@ namespace Denomica.Text.Json.Tests
         public async Task Serialize01()
         {
             var source = new Dictionary<string, object?>();
-            source["sub"] = newton.JObject.Parse("{ \"foo\": \"bar\" }");
+            source["sub"] = Newton.JObject.Parse("{ \"foo\": \"bar\" }");
             var json = await source.SerializeAsync();
 
             var jDoc = JsonDocument.Parse(json);
@@ -327,7 +350,7 @@ namespace Denomica.Text.Json.Tests
         [TestMethod]
         public void ToDictionary09()
         {
-            var d = newton.JToken.Parse("{ \"foo\": \"bar\" }").ToJsonDictionary();
+            var d = Newton.JToken.Parse("{ \"foo\": \"bar\" }").ToJsonDictionary();
             Assert.IsNotNull(d);
             Assert.IsTrue(d.ContainsKey("foo"));
             Assert.AreEqual("bar", d["foo"]);
@@ -336,7 +359,7 @@ namespace Denomica.Text.Json.Tests
         [TestMethod]
         public void ToDictionary10()
         {
-            var d = newton.JObject.Parse(Properties.Resources.json01).ToJsonDictionary();
+            var d = Newton.JObject.Parse(Properties.Resources.json01).ToJsonDictionary();
             Assert.IsNotNull(d);
             Assert.AreNotEqual(0, d.Count);
             Assert.IsNotNull(d["glossary"]);
@@ -345,7 +368,7 @@ namespace Denomica.Text.Json.Tests
         [TestMethod]
         public void ToDictionary11()
         {
-            var d = newton.JToken.Parse("{\"arr\": [\"item1\", \"item2\"]}").ToJsonDictionary();
+            var d = Newton.JToken.Parse("{\"arr\": [\"item1\", \"item2\"]}").ToJsonDictionary();
             Assert.IsNotNull(d?["arr"]);
             var list = d["arr"] as JsonList;
             Assert.IsNotNull(list);
@@ -357,7 +380,7 @@ namespace Denomica.Text.Json.Tests
         [TestMethod]
         public void ToDictionary12()
         {
-            var d = newton.JObject.Parse(Properties.Resources.json06).ToJsonDictionary();
+            var d = Newton.JObject.Parse(Properties.Resources.json06).ToJsonDictionary();
             Assert.IsNotNull(d);
 
             var obj = d["object"] as JsonDictionary;

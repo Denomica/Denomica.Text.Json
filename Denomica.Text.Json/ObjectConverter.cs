@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -16,6 +17,11 @@ namespace Denomica.Text.Json
     /// </summary>
     internal class ObjectConverter : JsonConverter<object>
     {
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return base.CanConvert(typeToConvert);
+        }
+
         public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             object? result = null;
@@ -93,6 +99,7 @@ namespace Denomica.Text.Json
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
             object source = value;
+
             if(value is newton.JToken)
             {
                 var token = (newton.JToken)value;
@@ -103,6 +110,21 @@ namespace Denomica.Text.Json
                 var obj = (JsonObject)value;
                 source = obj.ToJsonDictionary();
             }
+            else
+            {
+                source = value;
+                options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            }
+            //else if(value is JsonDictionary)
+            //{
+            //    source = value;
+            //    options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            //}
+            //else if(value is JsonList)
+            //{
+            //    source = value;
+            //    options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            //}
 
             var json = JsonSerializer.Serialize(source, options: options);
             writer.WriteRawValue(json);

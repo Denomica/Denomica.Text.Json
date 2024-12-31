@@ -15,6 +15,10 @@ The library exposes functionality for:
 
 The main improvements in the different versions are listed below.
 
+### v1.0.4
+
+- Updated vulnerable version of [System.Text.Json](https://www.nuget.org/packages/System.Text.Json/).
+
 ### v1.0.3
 
 - Added extension methods for hanlding nullable versions of [JsonElement](https://learn.microsoft.com/dotnet/api/system.text.json.jsonelement) structures.
