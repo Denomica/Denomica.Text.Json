@@ -15,15 +15,19 @@ The library exposes functionality for:
 
 The main improvements in the different versions are listed below.
 
+### v1.0.5
+
+- Downgraded [`System.Text.Json`](https://www.nuget.org/packages/System.Text.Json/) to a lower, but still non-vulnerable version. This enables more applications to use this library when applications can more freely determine which version of `System.Text.Json` they use.
+
 ### v1.0.4
 
-- Updated vulnerable version of [System.Text.Json](https://www.nuget.org/packages/System.Text.Json/).
+- Updated vulnerable version of [`System.Text.Json`](https://www.nuget.org/packages/System.Text.Json/).
 
 ### v1.0.3
 
-- Added extension methods for hanlding nullable versions of [JsonElement](https://learn.microsoft.com/dotnet/api/system.text.json.jsonelement) structures.
-- Updated [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/) package to a non-vulnerable version.
-- Updated [System.Text.Json](https://www.nuget.org/packages/System.Text.Json/) package.
+- Added extension methods for hanlding nullable versions of [`JsonElement`](https://learn.microsoft.com/dotnet/api/system.text.json.jsonelement) structures.
+- Updated [`Newtonsoft.Json`](https://www.nuget.org/packages/Newtonsoft.Json/) package to a non-vulnerable version.
+- Updated [`System.Text.Json`](https://www.nuget.org/packages/System.Text.Json/) package.
 
 ### v1.0.2
 
