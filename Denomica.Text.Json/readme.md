@@ -1,4 +1,4 @@
-﻿# Denomica.Test.Json
+﻿# Denomica.Text.Json
 
 A .NET Standard 2.1 library that exposes extension functionality for types defined in [`System.Text.Json`](https://www.nuget.org/packages/System.Text.Json)
 
