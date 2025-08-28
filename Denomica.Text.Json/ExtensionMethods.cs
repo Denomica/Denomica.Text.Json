@@ -200,12 +200,53 @@ namespace Denomica.Text.Json
             return null;
         }
 
+        /// <summary>
+        /// Retrieves the value represented by the specified <see cref="JsonNode"/>.
+        /// </summary>
+        /// <param name="node">The <see cref="JsonNode"/> from which to extract the value.</param>
+        /// <returns>The value contained in the <paramref name="node"/>, or <see langword="null"/> if the node does not contain a
+        /// value.</returns>
         public static object? GetValue(this JsonNode node)
         {
             var elem = JsonSerializer.SerializeToElement(node);
             return elem.GetValue();
         }
 
+        /// <summary>
+        /// Retrieves the value represented by the specified <see cref="newton.JToken"/>.
+        /// </summary>
+        /// <param name="token">
+        /// The <see cref="newton.JToken"/> from which to extract the value. This can be a <see cref="newton.JValue"/>,
+        /// <see cref="newton.JProperty"/>, <see cref="newton.JObject"/>, or <see cref="newton.JArray"/>.
+        /// </param>
+        /// <returns>
+        /// The value represented by the <paramref name="token"/>. The return type depends on the token type:
+        /// <list type="bullet">
+        /// <item>
+        /// <description>
+        /// If the token is a <see cref="newton.JValue"/>, the underlying value is returned.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// If the token is a <see cref="newton.JProperty"/>, the value of the property is returned.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>If the token is a <see
+        /// cref="newton.JObject"/>, a dictionary representation of the object is returned.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// If the token is a <see cref="newton.JArray"/>, a list representation of the array is returned.
+        /// </description>
+        /// </item>
+        /// </list>
+        /// <para>
+        /// Returns <see langword="null"/> if the token is not one of the supported types.
+        /// </para>
+        /// </returns>
         public static object? GetValue(this newton.JToken token)
         {
             object? result = null;
@@ -258,6 +299,17 @@ namespace Denomica.Text.Json
             return null;
         }
 
+        /// <summary>
+        /// Merges the elements of the source <see cref="JsonList"/> into the target <see cref="JsonList"/>,  adding
+        /// only those elements that are not already present in the target.
+        /// </summary>
+        /// <remarks>
+        /// This method ensures that duplicate elements from the source are not added to the target. The operation 
+        /// modifies the target <see cref="JsonList"/> in place and returns it.
+        /// </remarks>
+        /// <param name="source">The <see cref="JsonList"/> containing the elements to merge.</param>
+        /// <param name="target">The <see cref="JsonList"/> into which elements from the source will be added.</param>
+        /// <returns>The target <see cref="JsonList"/> after the merge operation is complete.</returns>
         public static JsonList MergeTo(this JsonList source, JsonList target)
         {
             foreach(var item in source)
@@ -277,6 +329,8 @@ namespace Denomica.Text.Json
         /// <remarks>
         /// If the same key value pair exists in both <paramref name="source"/> and <paramref name="target"/>,
         /// the value from <paramref name="source"/> will overwrite the value in <paramref name="target"/>.
+        /// If the key does not exist in <paramref name="target"/>, the key value pair from <paramref name="source"/>
+        /// will be added to <paramref name="target"/>.
         /// </remarks>
         /// <param name="source">The source dictionary to merge to <paramref name="target"/>.</param>
         /// <param name="target">The target dictionary to merge to.</param>
