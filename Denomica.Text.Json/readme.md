@@ -15,6 +15,10 @@ The library exposes functionality for:
 
 The main improvements in the different versions are listed below.
 
+### v1.0.6
+
+- Fixed a problem that caused objects not being properly deserialized when using a custom serialization options instance.
+
 ### v1.0.5
 
 - Downgraded [`System.Text.Json`](https://www.nuget.org/packages/System.Text.Json/) to a lower, but still non-vulnerable version. This enables more applications to use this library when applications can more freely determine which version of `System.Text.Json` they use.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -63,7 +64,11 @@ namespace Denomica.Text.Json
 
             foreach(var converter in GetSerializationConverters())
             {
-                options.Converters.Add(converter);
+                var existing = options.Converters.FirstOrDefault(x => x.GetType() == converter.GetType());
+                if(null == existing)
+                {
+                    options.Converters.Add(converter);
+                }
             }
         }
 

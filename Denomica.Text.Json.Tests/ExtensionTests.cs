@@ -147,6 +147,39 @@ namespace Denomica.Text.Json.Tests
             Assert.IsNotNull(target);
         }
 
+        [TestMethod]
+        public void Deserialize07()
+        {
+            var d1 = new Dictionary<string, object?>
+            {
+                { "flag", true },
+                { "integer", 100 }
+            };
+            var d2 = d1.Deserialize<Dictionary<string, object?>>(options: new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            foreach(var key in d1.Keys)
+            {
+                Assert.IsTrue(d2.ContainsKey(key));
+                Assert.AreEqual(d1[key], d2[key]);
+            }
+        }
+
+        [TestMethod]
+        public void Deserialize08()
+        {
+            var d1 = new Dictionary<string, object?>
+            {
+                { "flag", true },
+                { "integer", 100 }
+            };
+            var d2 = d1.Deserialize<Dictionary<string, object?>>();
+
+            foreach (var key in d1.Keys)
+            {
+                Assert.IsTrue(d2.ContainsKey(key));
+                Assert.AreEqual(d1[key], d2[key]);
+            }
+        }
 
 
         [TestMethod]

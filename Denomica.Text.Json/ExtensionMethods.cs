@@ -96,8 +96,11 @@ namespace Denomica.Text.Json
         /// <param name="options">Options to control the deserialization.</param>
         public static object? Deserialize(this JsonDictionary source, Type targetType, JsonSerializerOptions? options = null)
         {
-            var json = source.Serialize(options: options);
-            var result = JsonSerializer.Deserialize(json, targetType, options ?? JsonUtil.DefaultSerializationOptions);
+            var opt = options ?? JsonUtil.DefaultSerializationOptions;
+            JsonUtil.AddSerializationConverters(opt);
+
+            var json = source.Serialize(options: opt);
+            var result = JsonSerializer.Deserialize(json, targetType, options: opt);
             return result;
         }
 
