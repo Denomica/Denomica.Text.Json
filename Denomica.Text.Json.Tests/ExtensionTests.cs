@@ -181,6 +181,30 @@ namespace Denomica.Text.Json.Tests
             }
         }
 
+        [TestMethod]
+        public void Deserialize09()
+        {
+            var options = new JsonSerializerOptions { };
+            var d1 = new Dictionary<string, object?>
+            {
+                { "flag", true },
+                { "integer", 100 }
+            };
+
+            // First we just serialize the dictionary, to make sure that the options are used.
+            var json = JsonSerializer.Serialize(d1, options: options);
+
+            // Then we use the same options to deserialize.
+            var d2 = d1.Deserialize<Dictionary<string, object?>>(options: options);
+
+            foreach(var key in d1.Keys)
+            {
+                Assert.IsTrue(d2.ContainsKey(key));
+                Assert.AreEqual(d1[key], d2[key]);
+            }
+        }
+
+
 
         [TestMethod]
         public void GetValue01()
@@ -204,6 +228,20 @@ namespace Denomica.Text.Json.Tests
             Assert.IsNotNull(target);
             JsonDictionary sub = (JsonDictionary)(target["sub"] ?? throw new NullReferenceException());
             Assert.AreEqual("bar", sub["foo"]);
+        }
+
+        [TestMethod]
+        public void Serialize02()
+        {
+            var opt1 = new JsonSerializerOptions();
+            var opt2 = JsonUtil.CreateOptions();
+            var empl = new Employee { FirstName = "Laura", LastName = "Ingalls" };
+
+            var d1 = JsonUtil.CreateDictionary(empl, options: opt1);
+            var d2 = JsonUtil.CreateDictionary(empl, options: opt2);
+
+            Assert.IsTrue(d1.ContainsKey("FirstName"));
+            Assert.IsTrue(d2.ContainsKey("firstName"));
         }
 
 

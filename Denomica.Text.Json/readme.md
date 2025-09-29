@@ -15,9 +15,10 @@ The library exposes functionality for:
 
 The main improvements in the different versions are listed below.
 
-### v1.0.6
+### v1.0.7
 
 - Fixed a problem that caused objects not being properly deserialized when using a custom serialization options instance.
+- Fixed a problem with serialization / deserialization that was caused by the library trying to modify JSON serialization options after they had been used for a serialization or deserialization operation.
 
 ### v1.0.5
 

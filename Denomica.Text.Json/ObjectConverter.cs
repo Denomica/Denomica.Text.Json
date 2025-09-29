@@ -113,18 +113,7 @@ namespace Denomica.Text.Json
             else
             {
                 source = value;
-                options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
             }
-            //else if(value is JsonDictionary)
-            //{
-            //    source = value;
-            //    options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-            //}
-            //else if(value is JsonList)
-            //{
-            //    source = value;
-            //    options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-            //}
 
             var json = JsonSerializer.Serialize(source, options: options);
             writer.WriteRawValue(json);

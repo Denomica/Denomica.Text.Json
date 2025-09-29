@@ -96,7 +96,7 @@ namespace Denomica.Text.Json
         /// <param name="options">Options to control the deserialization.</param>
         public static object? Deserialize(this JsonDictionary source, Type targetType, JsonSerializerOptions? options = null)
         {
-            var opt = options ?? JsonUtil.DefaultSerializationOptions;
+            var opt = JsonUtil.CreateOptions(options);
             JsonUtil.AddSerializationConverters(opt);
 
             var json = source.Serialize(options: opt);
@@ -124,12 +124,13 @@ namespace Denomica.Text.Json
         /// <param name="options">Options to control the deserialization.</param>
         public static async Task<object?> DeserializeAsync(this JsonDictionary source, Type targetType, JsonSerializerOptions? options = null)
         {
-            using(var strm = new MemoryStream())
+            var opt = JsonUtil.CreateOptions(options);
+            using (var strm = new MemoryStream())
             {
-                await source.SerializeAsync(strm, options: options ?? JsonUtil.DefaultSerializationOptions);
+                await source.SerializeAsync(strm, options: opt);
                 strm.Position = 0;
 
-                return await JsonSerializer.DeserializeAsync(strm, targetType, options: options ?? JsonUtil.DefaultSerializationOptions);
+                return await JsonSerializer.DeserializeAsync(strm, targetType, options: opt);
             }
         }
 
@@ -371,7 +372,7 @@ namespace Denomica.Text.Json
         public static string Serialize(this JsonDictionary source, JsonSerializerOptions? options = null)
         {
             var clone = source.Clone();
-            return JsonSerializer.Serialize(clone, options: options ?? JsonUtil.DefaultSerializationOptions);
+            return JsonSerializer.Serialize(clone, options: JsonUtil.CreateOptions(options));
         }
 
         /// <summary>
@@ -382,7 +383,7 @@ namespace Denomica.Text.Json
         public static async Task SerializeAsync(this JsonDictionary source, Stream strm, JsonSerializerOptions? options = null)
         {
             var clone = await source.CloneAsync();
-            await JsonSerializer.SerializeAsync(strm, clone, options: options ?? JsonUtil.DefaultSerializationOptions);
+            await JsonSerializer.SerializeAsync(strm, clone, options: JsonUtil.CreateOptions(options));
         }
 
         /// <summary>
@@ -395,7 +396,7 @@ namespace Denomica.Text.Json
             var clone = await source.CloneAsync();
             using(var strm = new MemoryStream())
             {
-                await JsonSerializer.SerializeAsync(strm, clone, options: options ?? JsonUtil.DefaultSerializationOptions);
+                await JsonSerializer.SerializeAsync(strm, clone, options: JsonUtil.CreateOptions(options));
                 strm.Position = 0;
 
                 using (var reader = new StreamReader(strm))

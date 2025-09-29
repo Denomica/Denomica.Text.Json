@@ -38,7 +38,7 @@ namespace Denomica.Text.Json
         /// <param name="options">Optional options to use when serializing. If not specified <see cref="DefaultSerializationOptions"/> are used.</param>
         public static JsonDictionary CreateDictionary(object source, JsonSerializerOptions? options = null)
         {
-            var element = JsonSerializer.SerializeToElement(source, options: options ?? DefaultSerializationOptions);
+            var element = JsonSerializer.SerializeToElement(source, options: CreateOptions(options));
             return element.ToJsonDictionary();
         }
 
@@ -49,8 +49,31 @@ namespace Denomica.Text.Json
         /// <param name="options">Optional options to use when serializing. If not specified <see cref="DefaultSerializationOptions"/> are used.</param>
         public static JsonList CreateList(IEnumerable source, JsonSerializerOptions? options = null)
         {
-            var element = JsonSerializer.SerializeToElement(source, options: options ?? DefaultSerializationOptions);
+            var opt = CreateOptions(options);
+            var element = JsonSerializer.SerializeToElement(source, options: opt);
             return element.ToJsonList();
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="JsonSerializerOptions"/> based on the specified base options.
+        /// </summary>
+        /// <param name="baseOptions">The base <see cref="JsonSerializerOptions"/> to use as a starting point. Cannot be <see langword="null"/>.</param>
+        /// <returns>A new <see cref="JsonSerializerOptions"/> instance with additional serialization converters applied.</returns>
+        public static JsonSerializerOptions CreateOptions(JsonSerializerOptions? baseOptions = null)
+        {
+            JsonSerializerOptions options;
+
+            if(null != baseOptions)
+            {
+                options = new JsonSerializerOptions(baseOptions);
+            }
+            else
+            {
+                options = new JsonSerializerOptions(DefaultSerializationOptions);
+            }
+
+            AddSerializationConverters(options);
+            return options;
         }
 
         /// <summary>
@@ -61,13 +84,16 @@ namespace Denomica.Text.Json
         public static void AddSerializationConverters(JsonSerializerOptions options)
         {
             if(null == options) throw new ArgumentNullException(nameof(options));
-
             foreach(var converter in GetSerializationConverters())
             {
                 var existing = options.Converters.FirstOrDefault(x => x.GetType() == converter.GetType());
                 if(null == existing)
                 {
-                    options.Converters.Add(converter);
+                    try
+                    {
+                        options.Converters.Add(converter);
+                    }
+                    catch(InvalidOperationException) { }
                 }
             }
         }
