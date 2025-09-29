@@ -104,15 +104,24 @@ namespace Denomica.Text.Json
             {
                 var token = (newton.JToken)value;
                 source = token.ToJsonDictionary();
+                options = new JsonSerializerOptions(options);
             }
             else if(value is JsonObject)
             {
                 var obj = (JsonObject)value;
                 source = obj.ToJsonDictionary();
+                options = new JsonSerializerOptions(options);
             }
             else
             {
+                // We have to remove the current converter here, because otherwise we would create an infinite loop.
                 source = value;
+                options = new JsonSerializerOptions(options);
+                var conv = options.Converters.FirstOrDefault(x => x is ObjectConverter);
+                if(null != conv)
+                {
+                    options.Converters.Remove(conv);
+                }
             }
 
             var json = JsonSerializer.Serialize(source, options: options);

@@ -89,11 +89,7 @@ namespace Denomica.Text.Json
                 var existing = options.Converters.FirstOrDefault(x => x.GetType() == converter.GetType());
                 if(null == existing)
                 {
-                    try
-                    {
-                        options.Converters.Add(converter);
-                    }
-                    catch(InvalidOperationException) { }
+                    options.Converters.Add(converter);
                 }
             }
         }

@@ -19,8 +19,7 @@ namespace Denomica.Text.Json.Tests
     {
         static ExtensionTests()
         {
-            SerializationOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-            JsonUtil.AddSerializationConverters(SerializationOptions);
+            SerializationOptions = JsonUtil.CreateOptions();
         }
 
         private static JsonSerializerOptions SerializationOptions;
@@ -533,6 +532,14 @@ namespace Denomica.Text.Json.Tests
             var dict = elem.ToJsonDictionary();
             Assert.IsNull(dict);
         }
+
+        [TestMethod]
+        public void ToDictionary18()
+        {
+            var emp = new Employee { FirstName = "First", LastName = "Last" };
+            var d1 = JsonUtil.CreateDictionary(emp);
+        }
+
 
 
         [TestMethod]
